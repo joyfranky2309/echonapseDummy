@@ -1,0 +1,118 @@
+/* ===== Root container ===== */
+.login-register-container {
+  background: linear-gradient(180deg, #f4f9fb, #e9f2f6);
+  /* min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center; */
+}
+
+/* ===== Card ===== */
+
+/* .login-register-card {
+  width: 100%;
+  max-width: 100vh; 
+  border-radius: 18px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+} */
+
+/* ===== Title ===== */
+.login-register-card h1,
+.login-register-card h2 {
+  text-align: center;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ===== Toggle buttons ===== */
+.form-toggle-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.toggle-btn {
+  padding: 8px 22px;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.toggle-btn.btn-primary {
+  background-color: #0f766e;
+  border-color: #0f766e;
+}
+
+.toggle-btn.btn-outline-primary {
+  color: #0f766e;
+  border-color: #0f766e;
+}
+
+.toggle-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ===== Form container ===== */
+.form-container {
+  width: 100%;
+}
+
+/* ===== Inputs ===== */
+.form-control {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+/* ===== Submit button ===== */
+.submit-btn {
+  border-radius: 12px;
+  margin:20px;
+  padding: 15px;
+  font-weight: 600;
+  background-color: #0f766e;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.35);
+}
+
+/* ===== Fade animation ===== */
+.fade-in {
+  animation: fadeIn 0.35s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 480px) {
+  .login-register-card {
+    margin: 0 16px;
+  }
+}
