@@ -1,12 +1,15 @@
 const express = require('express');
+const {executeAgentCommands} = require("../../services/cmdDispatch")
+const {callBehaviorAgent}=require("../../services/agentClient")
 const router = express.Router();
+
 const Entry = require('../../schemas/entrySchema');
 
 // CREATE - Add a new entry
 router.post('/users/:userId/entries', async (req, res) => {
   try {
     const { userId } = req.params;
-    const {content, date} = req.body;
+    const {content,mood, date} = req.body;
 
     // Validate required fields
     if (!content || !date) {
@@ -20,6 +23,22 @@ router.post('/users/:userId/entries', async (req, res) => {
     });
 
     await newEntry.save();
+    const payload={
+      userContext: {
+      user_id: userId,
+      mood: mood || "neutral"
+    },
+    entryText: content,
+    history: [
+      "User has a routine medication schedule but sometimes forgets appointments."
+    ],
+    }
+    const agentop = await callBehaviorAgent(payload);
+    console.log("RAW AGENT RESPONSE ↓↓↓");
+console.dir(agentop, { depth: null });
+    const taskstatus=await executeAgentCommands(agentop.actions,userId);
+    console.log("TASK STATUS ↓↓↓");
+    console.dir(taskstatus, { depth: null });
     res.status(201).json({ message: 'Entry created successfully', entry: newEntry });
   } catch (error) {
     res.status(500).json({ message: 'Error creating entry', error: error.message });
@@ -31,7 +50,6 @@ router.get('/users/:userId/entries', async (req, res) => {
   try {
     const { userId } = req.params;
     const { sortBy = 'date' } = req.query; // sortBy can be 'date', 'createdAt'
-
     const entries = await Entry.find({ userId }).sort({ [sortBy]: -1 });
     res.status(200).json({ message: 'Entries retrieved successfully', entries });
   } catch (error) {

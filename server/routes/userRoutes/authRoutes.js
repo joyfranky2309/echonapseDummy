@@ -2,9 +2,67 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const User = require("../../schemas/userSchema");
-const { generateAccessToken } = require("../../middleware/authMiddleware");
+const { generateAccessToken, verifyToken } = require("../../middleware/authMiddleware");
 
 /* ===================== REGISTER ===================== */
+router.get("/auth/google", verifyToken, (req, res) => {
+  const url =
+    "https://accounts.google.com/o/oauth2/v2/auth?" +
+    new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      response_type: "code",
+      scope: "https://www.googleapis.com/auth/calendar.events",
+      access_type: "offline",
+      prompt: "consent",
+      state: req.user.id, // IMPORTANT
+    });
+
+  res.redirect(url);
+});
+const axios = require("axios");
+
+router.get("/auth/google/callback", async (req, res) => {
+  const { code, state } = req.query; // state = userId
+
+  if (!code || !state) {
+    return res.status(400).json({ message: "Missing code or state" });
+  }
+
+  try {
+    const tokenRes = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      {
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        code,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: "authorization_code",
+      }
+    );
+
+    const { refresh_token } = tokenRes.data;
+
+    if (!refresh_token) {
+      return res.status(400).json({
+        message: "No refresh token received. Did you force consent?",
+      });
+    }
+
+    await User.findByIdAndUpdate(state, {
+      googleRefreshToken: refresh_token,
+    });
+
+    res.json({
+      message: "Google Calendar connected successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Google OAuth failed",
+      error: err.response?.data || err.message,
+    });
+  }
+});
 
 router.post("/auth/register", async (req, res) => {
   try {

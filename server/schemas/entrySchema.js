@@ -6,6 +6,10 @@ const entrySchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  mood:{
+    type: String,
+    default: "neutral"
+  },
   content: {
     type: String,
     required: true,

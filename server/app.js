@@ -7,7 +7,6 @@ require("dotenv").config();
 const userRoutes = require("./routes/userRoutes/userRoutes");
 const entryRoutes = require("./routes/userRoutes/entryRoutes");
 const authRoutes = require("./routes/userRoutes/authRoutes");
-const agentRoutes = require("./routes/agentRoutes/agent");
 const { verifyToken } = require("./middleware/authMiddleware");
 
 const app = express();
@@ -32,7 +31,6 @@ app.get("/ping", (req, res) => {
   res.json({ ok: true, message: "Backend is alive 🚀" });
 });
 
-app.use("/api/agent", verifyToken, agentRoutes);
 
 /* ===================== Database ===================== */
 

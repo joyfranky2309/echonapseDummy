@@ -1,19 +1,35 @@
 const axios = require("axios");
-
+const {cmdsystem}=require("./cmdDispatch")
 const AGENT_BASE_URL = "http://localhost:8000";
 
 /**
  * Analyze a journal entry and get both actions and comprehensive report
- * @param {Object} payload - The analysis request
- * @param {Object} payload.userContext - User context (user_id, mood)
- * @param {string} payload.entryText - The journal entry text
- * @param {string} payload.history - Previous behavioral patterns/reports
- * @returns {Promise<Object>} - { actions: [], report: {} }
  */
-const analyzeBehavior = async (payload) => {
+const callBehaviorAgent = async (payload) => {
   try {
-    const res = await axios.post(`${AGENT_BASE_URL}/analyze`, payload);
-    return res.data; // Returns { actions: [], report: {} }
+    console.log(payload)
+    // Transform the payload to match FastAPI expectations
+    const requestPayload = {
+      userContext: {
+        user_id: payload.userContext?.user_id || payload.userId,
+        mood: payload.userContext?.mood || payload.mood || "neutral"
+      },
+      entryText: payload.entryText,
+      // If history is an array, join it into a single string
+      history: Array.isArray(payload.history) 
+        ? payload.history.join("\n") 
+        : (payload.history || ""),
+      current_datetime: new Date().toISOString()
+    };
+    console.log(requestPayload)
+    console.log("Sending to agent:", JSON.stringify(requestPayload, null, 2));
+
+    const res = await axios.post(`${AGENT_BASE_URL}/analyze`, requestPayload, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return res.data; 
   } catch (error) {
     console.error("Error analyzing behavior:", error.response?.data || error.message);
     throw error;
@@ -21,93 +37,42 @@ const analyzeBehavior = async (payload) => {
 };
 
 /**
- * Test the agent with sample data
- * @returns {Promise<Object>} - { actions: [], report: {} }
+ * Example: How to call from your backend route
  */
-const testAnalyze = async () => {
-  try {
-    const res = await axios.post(`${AGENT_BASE_URL}/analyze/test`);
-    return res.data;
-  } catch (error) {
-    console.error("Error in test analyze:", error.response?.data || error.message);
-    throw error;
-  }
-};
-
-/**
- * Get information about all agents
- * @returns {Promise<Object>} - Agent information
- */
-const getAgents = async () => {
-  try {
-    const res = await axios.get(`${AGENT_BASE_URL}/agents`);
-    return res.data;
-  } catch (error) {
-    console.error("Error getting agents:", error.response?.data || error.message);
-    throw error;
-  }
-};
-
-/**
- * Health check
- * @returns {Promise<Object>} - Health status
- */
-const healthCheck = async () => {
-  try {
-    const res = await axios.get(`${AGENT_BASE_URL}/health`);
-    return res.data;
-  } catch (error) {
-    console.error("Error in health check:", error.response?.data || error.message);
-    throw error;
-  }
-};
-
-// Example usage:
 const exampleUsage = async () => {
-  const payload = {
+  // Example 1: If your data comes with history as array
+  const dataWithArray = {
     userContext: {
-      user_id: "user_123",
-      mood: "calm"
+      user_id: "696b49d08b64d163e16dd4cd",
+      mood: "neutral"
     },
-    entryText: "I have a doctor appointment at 2pm tomorrow. Feeling a bit tired today.",
-    history: "User has been logging regularly. No major concerns in past entries."
+    entryText: "I need to take my blood test on 22nd January at 10am.",
+    history: [
+      "User has a routine medication schedule but sometimes forgets appointments."
+    ]
   };
 
+  // Example 2: If your data comes with history as string
+  const dataWithString = {
+    userContext: {
+      user_id: "696b49d08b64d163e16dd4cd",
+      mood: "neutral"
+    },
+    entryText: "I need to take my blood test on 22nd January at 10am.",
+    history: "User has a routine medication schedule but sometimes forgets appointments."
+  };
+
+  // Both will work with the callBehaviorAgent function above
   try {
-    const result = await analyzeBehavior(payload);
-    
-    // Access actions
+    const result = await callBehaviorAgent(dataWithArray); // or dataWithString
     console.log("Actions:", result.actions);
-    // Actions will be an array like:
-    // [
-    //   { action: "SET_REMINDER", reason: "...", confidence: 0.95, payload: {...} },
-    //   { action: "STORE_INTERACTION", reason: "...", confidence: 0.8, payload: {...} }
-    // ]
-    
-    // Access comprehensive report
     console.log("Report:", result.report);
-    // Report will include:
-    // {
-    //   report_id: "...",
-    //   user_id: "...",
-    //   entry_summary: "...",
-    //   cognitive_status: "...",
-    //   caretaker_notes: "...",
-    //   ... all other report fields
-    // }
-    
     return result;
   } catch (error) {
-    console.error("Failed to analyze:", error);
+    console.error("Failed:", error);
   }
 };
 
 module.exports = {
-  analyzeBehavior,
-  testAnalyze,
-  getAgents,
-  healthCheck,
-  
-  // Keep old names for backward compatibility if needed
-  callBehaviorAgent: analyzeBehavior,
+  callBehaviorAgent
 };

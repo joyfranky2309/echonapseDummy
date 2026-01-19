@@ -43,10 +43,6 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   caretakerDetails: [caretakerSchema],
-  refreshToken: {
-    type: String,
-    default: null,
-  },
   createdAt: {
     type: Date,
     default: Date.now,
