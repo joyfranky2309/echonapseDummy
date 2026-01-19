@@ -1,4 +1,5 @@
 const express = require('express');
+const {getReport}=require("../../services/reportServices")
 const {executeAgentCommands} = require("../../services/cmdDispatch")
 const {callBehaviorAgent}=require("../../services/agentClient")
 const router = express.Router();
@@ -29,9 +30,7 @@ router.post('/users/:userId/entries', async (req, res) => {
       mood: mood || "neutral"
     },
     entryText: content,
-    history: [
-      "User has a routine medication schedule but sometimes forgets appointments."
-    ],
+    history: await getReport(userId).content,
     }
     const agentop = await callBehaviorAgent(payload);
     console.log("RAW AGENT RESPONSE ↓↓↓");

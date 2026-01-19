@@ -1,5 +1,7 @@
 const axios = require("axios");
-const {cmdsystem}=require("./cmdDispatch")
+// const {cmdsystem}=require("./cmdDispatch")
+
+
 const AGENT_BASE_URL = "http://localhost:8000";
 
 /**
@@ -11,8 +13,8 @@ const callBehaviorAgent = async (payload) => {
     // Transform the payload to match FastAPI expectations
     const requestPayload = {
       userContext: {
-        user_id: payload.userContext?.user_id || payload.userId,
-        mood: payload.userContext?.mood || payload.mood || "neutral"
+        user_id: payload.userContext.user_id,
+        mood: payload.userContext.mood || "neutral"
       },
       entryText: payload.entryText,
       // If history is an array, join it into a single string
