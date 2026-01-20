@@ -23,6 +23,9 @@ async function executeAgentCommands(commands, userId) {
         results.push(
           await sendCaretakerEmail(cmd,userId));
         break;
+        case "LOG_COGNITIVE_EVENT":
+           results.push(
+          await sendCaretakerEmail(cmd,userId));
       default:
         results.push({ skipped: cmd.action });
     }
