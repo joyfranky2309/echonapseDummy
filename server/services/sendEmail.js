@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const User = require("../schemas/userSchema");
-const dotenv = require("dotenv");
-dotenv.config();
+require("dotenv").config();
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -10,49 +10,38 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-async function sendCaretakerEmail(cmd,userId) {
-  const to = await User.find({_id:userId}).caretakerDetails.emailID;
-  const subject = cmd.reason;
-  const text=cmd.payload.message;
-  const evidence=cmd.payload.evidence;
+async function sendCaretakerEmail(cmd, userId) {
+  const user = await User.findById(userId);
+
+  if (!user) throw new Error("User not found");
+
+  const caretaker = user.caretakerDetails?.[0];
+
+  if (!caretaker?.emailID) {
+    throw new Error("Caretaker email missing");
+  }
 
   return await transporter.sendMail({
     from: `"EchoNapse Alerts" <${process.env.ALERT_EMAIL}>`,
-    to,
-    subject,
-    text,
-    evidence,
+    to: caretaker.emailID,
+    subject: cmd.reason,
+    text: cmd.payload.message
   });
 }
-async function sendAlert(cmd,userId) {
-  const to = await User.find({_id:userId}).email;
-  const subject = cmd.reason;
-  const text=cmd.payload.message;
+
+async function sendAlert(cmd, userId) {
+  const user = await User.findById(userId);
+
+  if (!user?.email) {
+    throw new Error("User email missing");
+  }
+
   return await transporter.sendMail({
     from: `"EchoNapse Alerts" <${process.env.ALERT_EMAIL}>`,
-    to,
-    subject,
-    text
+    to: user.email,
+    subject: cmd.reason,
+    text: cmd.payload.message
   });
 }
-// function reminderEmailTemplate({ patientName, message, time }) {
-//   return `
-// Hello Caretaker,
 
-// This is an alert from EchoNapse.
-
-// Patient: ${patientName}
-// Alert Type: Memory / Assistance Required
-// Time: ${new Date(time).toLocaleString()}
-
-// Message:
-// ${message}
-
-// Please check on the patient as soon as possible.
-
-// — EchoNapse Healthcare Assistant
-// `;
-// }
-
-
-module.exports = { sendCaretakerEmail,sendAlert };
+module.exports = { sendCaretakerEmail, sendAlert };

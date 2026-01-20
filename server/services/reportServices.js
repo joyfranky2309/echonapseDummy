@@ -19,7 +19,7 @@ async function create(userId, content) {
 }
 async function getReport(userId) {
     try{
-        return await Report.findOne({userId})
+        return await Report.findById(userId);
     }
     catch(error)
     {
