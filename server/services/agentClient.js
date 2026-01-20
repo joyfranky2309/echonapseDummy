@@ -2,7 +2,7 @@ const axios = require("axios");
 // const {cmdsystem}=require("./cmdDispatch")
 
 
-const AGENT_BASE_URL = "http://localhost:8000";
+const AGENT_BASE_URL = "http://localhost:8001";
 
 /**
  * Analyze a journal entry and get both actions and comprehensive report

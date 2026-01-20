@@ -20,6 +20,7 @@ router.post('/users/:userId/entries', async (req, res) => {
     const newEntry = new Entry({
       userId,
       content,
+      mood,
       date: new Date(date),
     });
 
@@ -38,7 +39,7 @@ console.dir(agentop, { depth: null });
     const taskstatus=await executeAgentCommands(agentop.actions,userId);
     console.log("TASK STATUS ↓↓↓");
     console.dir(taskstatus, { depth: null });
-    res.status(201).json({ message: 'Entry created successfully', entry: newEntry });
+    res.status(201).json({ message: 'Entry created successfully', entry: newEntry ,taskstatus});
   } catch (error) {
     res.status(500).json({ message: 'Error creating entry', error: error.message });
   }
