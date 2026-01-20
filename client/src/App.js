@@ -1,21 +1,72 @@
-import React from 'react';
-import {BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import GetStarted from './Pages/GetStarted';
-import Dashboard from './Pages/Dashboard';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Login from "./components/LoginPage";
+import Register from "./components/Registerpage";
+import Notes from "./components/Notes";
+import Reports from "./components/Reports";
+import Help from "./components/Help";
+import Profile from "./components/Profile";
+import AppLayout from "./components/layouts/AppLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <div>
-      <Router>
-        <Routes>
-          <Route path='/getstarted' element={<GetStarted />}/>
-          <Route path='/' element={<Dashboard />}/>
-        </Routes>
-      </Router>
-      
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        {/* Default */}
+        <Route path="/" element={<Navigate to="/login" />} />
+
+        {/* Public */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected */}
+        <Route
+          path="/notes"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Notes />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Reports />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Profile />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/help"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Help />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
